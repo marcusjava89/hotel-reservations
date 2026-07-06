@@ -3,6 +3,7 @@ package br.com.hotel.hotel_reservations.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import br.com.hotel.hotel_reservations.dto.CustomerRequestDTO;
@@ -33,7 +34,11 @@ public class CustomerService {
 		return mapper.toResponse(customer);
 	}
 
+	@Cacheable("customers")
 	public CustomerResponseDTO findById(Long id) {
+		
+		System.out.println("Searching in database.");
+		
 		Customer customer = repository.findById(id).orElseThrow(() -> new CustomerNotFoundException(id));
 		return mapper.toResponse(customer);
 	}

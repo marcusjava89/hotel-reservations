@@ -14,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
@@ -24,10 +25,11 @@ import lombok.Setter;
 @Table(name = "reservations")
 @Getter @Setter
 @EqualsAndHashCode(of = "id")
+@SequenceGenerator(name = "seq_reservation", sequenceName = "seq_reservation", initialValue = 1, allocationSize = 1)
 public class Reservation {
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_reservation")
 	@Setter(AccessLevel.NONE)
 	@Column(name = "id", nullable = false)
 	private Long id;
