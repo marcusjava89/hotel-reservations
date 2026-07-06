@@ -3,6 +3,7 @@ package br.com.hotel.hotel_reservations.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -43,13 +44,15 @@ public class CustomerService {
 		return mapper.toResponse(customer);
 	}
 
-	/*The receptionist searches a customer by e-mail address.*/
+	/*The concierge searches a customer by e-mail address.*/
+	@Cacheable("customersEmail")
 	public CustomerResponseDTO findByEmail(String email) {
 		Customer customer = repository.findByEmail(email).orElseThrow(() -> new CustomerNotFoundException(email));
 		return mapper.toResponse(customer);
 	}
 
 	@Transactional
+	@CacheEvict(value = {"customers", "customersEmail"}, allEntries = true)
 	public void delete(Long id) {
 		Customer customer = repository.findById(id).orElseThrow(() -> new CustomerNotFoundException(id));
 		repository.delete(customer);
@@ -61,6 +64,7 @@ public class CustomerService {
 	}
 	
 	@Transactional
+	@CacheEvict(value = {"customers", "customersEmail"}, allEntries = true)
 	public CustomerResponseDTO updateCustomer(Long id, CustomerRequestDTO request) {	
 		Optional<Customer> found = repository.findByEmail(request.getEmail());
 		Customer customer = repository.findById(id).orElseThrow(() -> new CustomerNotFoundException(id));

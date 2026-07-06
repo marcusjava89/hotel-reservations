@@ -3,6 +3,8 @@ package br.com.hotel.hotel_reservations.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import br.com.hotel.hotel_reservations.dto.ReservationRequestDTO;
@@ -33,6 +35,7 @@ public class ReservationService {
 	private final RoomRepository roomRepository;
 	
 	@Transactional
+	@CacheEvict(value = {"reservationPeriod", "occupiedRooms", "checkRoom"} ,allEntries = true)
 	public ReservationResponseDTO openReservation(ReservationRequestDTO request) {
 		
 			if(!request.getCheckin().isBefore(request.getCheckout())) {
@@ -64,6 +67,7 @@ public class ReservationService {
 	}
 	
 	@Transactional
+	@CacheEvict(value = {"reservationPeriod", "occupiedRooms", "checkRoom"} ,allEntries = true)
 	public ReservationResponseDTO closeReservation(Long id){
 		Reservation reservation = reservationRepository.findById(id).orElseThrow(
 				() -> new ReservationNotFoundException(id));
@@ -80,6 +84,7 @@ public class ReservationService {
 	}
 	
 	@Transactional
+	@CacheEvict(value = {"reservationPeriod", "occupiedRooms", "checkRoom"} ,allEntries = true)
 	public ReservationResponseDTO cancelReservation(Long id) {
 		Reservation reservation = reservationRepository.findById(id).orElseThrow(
 				() -> new ReservationNotFoundException(id));
@@ -95,6 +100,7 @@ public class ReservationService {
 	}
 	
 	@Transactional
+	@CacheEvict(value = {"reservationPeriod", "occupiedRooms", "checkRoom"} ,allEntries = true)
 	public ReservationResponseDTO markAbsenceReservation(Long id) {
 		Reservation reservation = reservationRepository.findById(id).orElseThrow(
 				() -> new ReservationNotFoundException(id));
@@ -109,18 +115,21 @@ public class ReservationService {
 		return mapper.toResponse(reservation);
 	}
 	
+	@Cacheable("reservationPeriod")
 	public List<ReservationResponseDTO> findReservationsByPeriod(LocalDateTime startDate, LocalDateTime endDate){
 		List<Reservation> reservationList = reservationRepository.findReservationsByPeriod(startDate, endDate);
 		return mapper.toResponseList(reservationList);
 	}
 	
 	/*Return list of occupied room numbers.*/
+	@Cacheable("occupiedRooms")
 	public List<Integer> findAllOccupiedRooms(){
 		List<Integer> occupiedRoomList = reservationRepository.findAllOccupiedRooms();
 		return occupiedRoomList;
  	}
 	
 	/*Receives roomNumber and return if is occupied.*/
+	@Cacheable("checkRoom")
 	public String checkRoomOccupation(Integer roomNumber) {
 		Room foundRoom = roomRepository.findByRoomNumber(roomNumber)
 				.orElseThrow(() -> new RoomNotFoundException(roomNumber));
