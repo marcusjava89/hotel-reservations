@@ -10,7 +10,6 @@ public class HotelReservationsApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(HotelReservationsApplication.class, args);
-		System.out.println("Connected hotel.");
 	}
 
 }

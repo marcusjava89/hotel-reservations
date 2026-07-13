@@ -30,6 +30,7 @@
 	<properties>
 		<java.version>21</java.version>
 	</properties>
+	
 	<dependencies>
 
 		<dependency>
@@ -102,6 +103,12 @@
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 			<scope>runtime</scope>
+		</dependency>
+
+		<!--Caffeine-->
+		<dependency>
+			<groupId>com.github.ben-manes.caffeine</groupId>
+			<artifactId>caffeine</artifactId>
 		</dependency>
 
 	</dependencies>
