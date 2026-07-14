@@ -30,8 +30,6 @@ public class CustomerService {
 		Optional<Customer> foundCustomer = repository.findByEmail(request.getEmail());
 
 		if (foundCustomer.isPresent()) {
-			log.warn("Attempt to create a customer with an existent email: {}", request.getEmail());
-			
 			throw new CustomerConflictException(request.getEmail());
 		}
 
@@ -60,14 +58,13 @@ public class CustomerService {
 		Customer customer = repository.findByEmail(email).orElseThrow(() -> new CustomerNotFoundException(email));
 		return mapper.toResponse(customer);
 	}
-
-	/*Keep from here.*/
 	
 	@Transactional
 	@CacheEvict(value = {"customers", "customersEmail"}, allEntries = true)
 	public void delete(Long id) {
 		Customer customer = repository.findById(id).orElseThrow(() -> new CustomerNotFoundException(id));
 		repository.delete(customer);
+		
 	}
 
 	public List<CustomerResponseDTO> listAll() {
