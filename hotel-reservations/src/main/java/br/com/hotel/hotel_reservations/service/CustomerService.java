@@ -35,7 +35,7 @@ public class CustomerService {
 
 		Customer customer = repository.save(mapper.toEntity(request));
 		
-		log.info("New customer added, with email {}.", customer.getEmail());
+		log.info("Customer created. Email: {}", customer.getEmail());
 		
 		return mapper.toResponse(customer);
 	}
@@ -65,6 +65,7 @@ public class CustomerService {
 		Customer customer = repository.findById(id).orElseThrow(() -> new CustomerNotFoundException(id));
 		repository.delete(customer);
 		
+		log.info("Customer deleted. Id: {}.", id);	
 	}
 
 	public List<CustomerResponseDTO> listAll() {
@@ -84,7 +85,11 @@ public class CustomerService {
 		
 		mapper.updateCustomer(request, customer);
 		repository.save(customer);
+
+		log.info("Customer updated. Id: {}. E-mail: {}", customer.getId(), customer.getEmail());
+		
 		return mapper.toResponse(customer);
+		
 	}
 	
 }

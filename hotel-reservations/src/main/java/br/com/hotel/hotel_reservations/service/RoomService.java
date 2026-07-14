@@ -16,7 +16,9 @@ import br.com.hotel.hotel_reservations.model.Room;
 import br.com.hotel.hotel_reservations.repository.RoomRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class RoomService {
@@ -34,11 +36,15 @@ public class RoomService {
 		Room room = mapper.toEntity(requestDTO);
 		repository.save(room);
 		
+		log.info("Room created. Id: {}.", room.getId());
+		
 		return mapper.toResponseDTO(room);
 	}
 	
 	@Cacheable("rooms")
 	public RoomResponseDTO findById(Long id) {
+		log.info("Searching room by id {}.", id);
+		
 		Room room = repository.findById(id).orElseThrow(() -> new RoomNotFoundException(id));
 		return mapper.toResponseDTO(room);
 	}
@@ -46,6 +52,8 @@ public class RoomService {
 	/*The receptionist searches a room by number.*/
 	@Cacheable("roomsNumber")
 	public RoomResponseDTO findByRoomNumber(Integer roomNumber) {
+		log.info("Searching room by room number {}.", roomNumber);
+		
 		Room room = repository.findByRoomNumber(roomNumber).
 		orElseThrow(() -> new RoomNotFoundException(roomNumber));
 		
@@ -70,6 +78,8 @@ public class RoomService {
 		mapper.updateRoom(request, room);
 		repository.save(room);
 		
+		log.info("Room updated. Id: {}.", room.getId());
+		
 		return mapper.toResponseDTO(room);
 	}
 	
@@ -78,8 +88,8 @@ public class RoomService {
 	public void deleteById(Long id) {
 		Room room = repository.findById(id).orElseThrow(() -> new RoomNotFoundException(id));
 		repository.delete(room);
+		
+		log.info("Room deleted. Id: {}.", id);
 	}
 	
 }
-
-

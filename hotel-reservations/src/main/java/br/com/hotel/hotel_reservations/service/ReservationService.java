@@ -25,7 +25,9 @@ import br.com.hotel.hotel_reservations.repository.ReservationRepository;
 import br.com.hotel.hotel_reservations.repository.RoomRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ReservationService {
@@ -63,6 +65,8 @@ public class ReservationService {
 			
 			reservationRepository.save(reservation);
 			
+			log.info("Reservation created. Id: {}.", reservation.getId());
+			
 			return mapper.toResponse(reservation);
 	}
 	
@@ -80,6 +84,9 @@ public class ReservationService {
 		}
 		
 		reservationRepository.save(reservation);
+		
+		log.info("Reservation closed. Id: {}.", reservation.getId());
+		
 		return mapper.toResponse(reservation);
 	}
 	
@@ -96,6 +103,9 @@ public class ReservationService {
 		}
 		
 		reservationRepository.save(reservation);
+		
+		log.info("Reservation canceled. Id: {}.", reservation.getId());
+		
 		return mapper.toResponse(reservation);
 	}
 	
@@ -112,27 +122,31 @@ public class ReservationService {
 		}
 		
 		reservationRepository.save(reservation);
+		log.info("Reservation marked absence. Id: {}.", reservation.getId());
 		return mapper.toResponse(reservation);
 	}
 	
 	@Cacheable("reservationPeriod")
 	public List<ReservationResponseDTO> findReservationsByPeriod(LocalDateTime startDate, LocalDateTime endDate){
+		log.info("Searching reservations between {} and {}.", startDate, endDate);
+		
 		List<Reservation> reservationList = reservationRepository.findReservationsByPeriod(startDate, endDate);
 		return mapper.toResponseList(reservationList);
 	}
 	
-	/*Return list of occupied room numbers.*/
 	@Cacheable("occupiedRooms")
 	public List<Integer> findAllOccupiedRooms(){
+		log.info("Searching occupied rooms.");
+		
 		List<Integer> occupiedRoomList = reservationRepository.findAllOccupiedRooms();
 		return occupiedRoomList;
  	}
 	
-	/*Receives roomNumber and return if is occupied.*/
 	@Cacheable("checkRoom")
 	public String checkRoomOccupation(Integer roomNumber) {
-		Room foundRoom = roomRepository.findByRoomNumber(roomNumber)
-				.orElseThrow(() -> new RoomNotFoundException(roomNumber));
+		log.info("Checking occupation of room {}.", roomNumber);
+		
+		roomRepository.findByRoomNumber(roomNumber).orElseThrow(() -> new RoomNotFoundException(roomNumber));
 		
 		boolean occupied = reservationRepository.isRoomOccupied(roomNumber);
 		

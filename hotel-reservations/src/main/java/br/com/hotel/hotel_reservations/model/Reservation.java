@@ -62,6 +62,4 @@ public class Reservation {
 		createdAt = LocalDateTime.now();
 	}
 	
-	
-	
 }
