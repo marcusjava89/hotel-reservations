@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.hotel.hotel_reservations.dto.ReservationRequestDTO;
@@ -53,9 +54,9 @@ public class ReservationController {
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 	
-	@GetMapping("/{startDate}/{endDate}")
+	@GetMapping("/period")
 	public ResponseEntity<List<ReservationResponseDTO>> 
-	findReservationsByPeriod(@PathVariable LocalDateTime startDate,@PathVariable LocalDateTime endDate){
+	findReservationsByPeriod(@RequestParam LocalDateTime startDate,@RequestParam LocalDateTime endDate){
 		List<ReservationResponseDTO> responseList = service.findReservationsByPeriod(startDate, endDate);
 		
 		return ResponseEntity.ok(responseList);
@@ -67,18 +68,9 @@ public class ReservationController {
 		return ResponseEntity.ok(roomList);
 	}
 	
-	@GetMapping("/{roomNumber}/occupied")
-	public ResponseEntity<String> checkRoomOccupation(@PathVariable Integer roomNumber){
+	@GetMapping("/occupied")
+	public ResponseEntity<String> checkRoomOccupation(@RequestParam Integer roomNumber){
 		String message = service.checkRoomOccupation(roomNumber);
 		return ResponseEntity.ok(message);
 	}
 }
-
-
-
-
-
-
-
-
-

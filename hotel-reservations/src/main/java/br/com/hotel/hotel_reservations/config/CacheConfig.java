@@ -18,7 +18,7 @@ public class CacheConfig {
 
 		cacheManager.setCaffeine(Caffeine.newBuilder().expireAfterWrite(30, TimeUnit.SECONDS));
 
-		return cacheManager;
+		return cacheManager; //Who invokes .build() is CaffeineCacheManager and then the object is created.
 	}
 
 }

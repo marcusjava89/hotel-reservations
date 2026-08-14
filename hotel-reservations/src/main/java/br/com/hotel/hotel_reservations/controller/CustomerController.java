@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import br.com.hotel.hotel_reservations.dto.CustomerRequestDTO;
 import br.com.hotel.hotel_reservations.dto.CustomerResponseDTO;
 import br.com.hotel.hotel_reservations.service.CustomerService;
+import jakarta.validation.ReportAsSingleViolation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -35,7 +36,7 @@ public class CustomerController {
 	@GetMapping("/{id}")
 	public ResponseEntity<CustomerResponseDTO> findById(@PathVariable Long id){
 		CustomerResponseDTO response = service.findById(id);
-		return ResponseEntity.ok(response);
+		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 	
 	@GetMapping("/by-email")
