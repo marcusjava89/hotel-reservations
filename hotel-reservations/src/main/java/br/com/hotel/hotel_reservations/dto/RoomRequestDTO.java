@@ -19,7 +19,7 @@ public class RoomRequestDTO {
 	@NotNull(message = "Room type is required.")
 	private RoomType type;
 	
-	@NotNull(message = "Room price is required")
+	@NotNull(message = "Room price is required.")
 	@DecimalMin(value = "0.0", inclusive = false)
 	private BigDecimal price;
 }

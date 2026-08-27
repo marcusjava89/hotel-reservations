@@ -18,9 +18,9 @@ public class CustomerRequestDTO {
 	@Email(message = "Invalid e-mail address format.")
 	private String email;
 	
-	@NotBlank(message = "We need a phone to contact the customer")
+	@NotBlank(message = "We need a phone to contact the customer.")
 	private String phone;
 	
-	@NotNull(message = "The customer address cannot be empty")
+	@NotNull(message = "The customer address cannot be empty.")
 	private AddressRequestDTO address;
 }

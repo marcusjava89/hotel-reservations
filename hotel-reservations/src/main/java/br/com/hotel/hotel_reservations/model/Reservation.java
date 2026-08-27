@@ -3,6 +3,7 @@ package br.com.hotel.hotel_reservations.model;
 import java.time.LocalDateTime;
 
 import br.com.hotel.hotel_reservations.enums.ReservationStatus;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

@@ -34,6 +34,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 	
+	/*To a general exception.*/
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<String> handlerExeception(Exception ex){
 		

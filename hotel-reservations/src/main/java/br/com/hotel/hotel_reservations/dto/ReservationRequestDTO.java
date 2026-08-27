@@ -10,7 +10,7 @@ import lombok.Setter;
 @Getter @Setter
 public class ReservationRequestDTO {
 	
-	@NotBlank(message = "To find the customer we need the e-mail.")
+	@NotBlank(message = "Email cannot be empty.")
 	private String customerEmail; 
 	
 	@NotNull(message = "Room number cannot be empty.")

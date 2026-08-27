@@ -12,8 +12,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
-/*fazer responseDTO, repository, mapper*/
-
 @Entity
 @Table(name = "addresses")
 @Getter @Setter

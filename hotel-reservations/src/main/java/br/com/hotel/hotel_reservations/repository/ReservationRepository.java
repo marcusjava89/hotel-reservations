@@ -19,12 +19,12 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 			SELECT COUNT(r) > 0
 			FROM Reservation r
 			WHERE r.room = :room
-			AND r.status <> :status
+			AND r.status IN ('IN_USE', 'SCHEDULED')
 			AND r.checkin < :endDate
 			AND r.checkout > :startDate
 			""")
-	public boolean existsReservationConflict(@Param("room") Room room, @Param("status") ReservationStatus status,
-			@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+	public boolean existsReservationConflict(@Param("room") Room room, @Param("startDate") LocalDateTime startDate, 
+			@Param("endDate") LocalDateTime endDate);
 
 	@Query("""
 			SELECT r
