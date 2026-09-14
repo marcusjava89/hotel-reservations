@@ -11,7 +11,11 @@ import br.com.hotel.hotel_reservations.dto.CustomerRequestDTO;
 import br.com.hotel.hotel_reservations.dto.CustomerResponseDTO;
 import br.com.hotel.hotel_reservations.exception.CustomerConflictException;
 import br.com.hotel.hotel_reservations.exception.CustomerNotFoundException;
+import br.com.hotel.hotel_reservations.exception.InvalidZipCodeException;
+import br.com.hotel.hotel_reservations.integration.viacep.ViaCepClient;
+import br.com.hotel.hotel_reservations.integration.viacep.ViaCepResponse;
 import br.com.hotel.hotel_reservations.mapper.CustomerMapper;
+import br.com.hotel.hotel_reservations.model.Address;
 import br.com.hotel.hotel_reservations.model.Customer;
 import br.com.hotel.hotel_reservations.repository.CustomerRepository;
 import jakarta.transaction.Transactional;
@@ -24,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 public class CustomerService {
 	private final CustomerRepository repository;
 	private final CustomerMapper mapper;
+	private final ViaCepClient viaCepClient;
 
 	@Transactional
 	public CustomerResponseDTO save(CustomerRequestDTO request) {
@@ -32,10 +37,27 @@ public class CustomerService {
 		if (foundCustomer.isPresent()) {
 			throw new CustomerConflictException(request.getEmail());
 		}
-
-		Customer customer = repository.save(mapper.toEntity(request));
 		
-		log.info("Customer created. Email: {}", customer.getEmail());
+		ViaCepResponse viaCepResponse = viaCepClient.findByZipCode(request.getZipcode());
+		
+		if(Boolean.TRUE.equals(viaCepResponse.erro())) {
+			throw new InvalidZipCodeException(request.getZipcode());
+		}
+		
+		Address address = new Address();
+		
+		address.setAddressDetails(viaCepResponse.complemento());
+		address.setNeighborhood(viaCepResponse.bairro());
+		address.setState(viaCepResponse.uf());
+		address.setStreet(viaCepResponse.logradouro());
+		address.setZipCode(viaCepResponse.cep());
+		
+		Customer customer = mapper.toEntity(request);
+		customer.setAddress(address);
+		
+		repository.save(customer);
+		
+		log.info("Customer created and saved in database. Email: {}", customer.getEmail());
 		
 		return mapper.toResponse(customer);
 	}
@@ -70,7 +92,8 @@ public class CustomerService {
 
 	public List<CustomerResponseDTO> listAll() {
 		List<Customer> listCustomer = repository.findAll();
-		return mapper.toResponseList(listCustomer);
+		log.info("All customers were listed.");
+		return mapper.toResponseList(listCustomer);		
 	}
 	
 	@Transactional
@@ -91,5 +114,4 @@ public class CustomerService {
 		return mapper.toResponse(customer);
 		
 	}
-	
 }

@@ -51,15 +51,15 @@ public class ReservationService {
 					orElseThrow(() -> new RoomNotFoundException(request.getRoomNumber()));
 			
 			boolean dateConflict = reservationRepository.existsReservationConflict(
-					room, ReservationStatus.CANCELED, request.getCheckin(), request.getCheckout());
+					room, request.getCheckin(), request.getCheckout());
 			
 			if(dateConflict) {
 				throw new ReservationConflictException(room.getRoomNumber());
 			}
 			
 			Reservation reservation = mapper.toEntity(request);
-			reservation.setStatus(ReservationStatus.SCHEDULED);
 			
+			reservation.setStatus(ReservationStatus.SCHEDULED);
 			reservation.setCustomer(customer);
 			reservation.setRoom(room);
 			

@@ -21,6 +21,6 @@ public class CustomerRequestDTO {
 	@NotBlank(message = "We need a phone to contact the customer.")
 	private String phone;
 	
-	@NotNull(message = "The customer address cannot be empty.")
-	private AddressRequestDTO address;
+	@NotBlank(message = "Zipcode is required.")
+	private String zipcode;
 }

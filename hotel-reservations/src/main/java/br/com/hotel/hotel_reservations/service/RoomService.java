@@ -49,13 +49,12 @@ public class RoomService {
 		return mapper.toResponseDTO(room);
 	}
 	
-	/*The receptionist searches a room by number.*/
 	@Cacheable("roomsNumber")
 	public RoomResponseDTO findByRoomNumber(Integer roomNumber) {
 		log.info("Searching room by room number {}.", roomNumber);
 		
-		Room room = repository.findByRoomNumber(roomNumber).
-		orElseThrow(() -> new RoomNotFoundException(roomNumber));
+		Room room = repository.findByRoomNumber(roomNumber).orElseThrow(() -> 
+		new RoomNotFoundException(roomNumber));
 		
 		return mapper.toResponseDTO(room);
 	}

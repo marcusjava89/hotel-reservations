@@ -48,6 +48,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 		       WHERE r.status IN ('IN_USE', 'SCHEDULED')
 		       AND r.room.roomNumber = :roomNumber
 		       """)
-	public boolean isRoomOccupied(Integer roomNumber);
+	public boolean isRoomOccupied(@Param("roomNumber") Integer roomNumber);
 
 }
