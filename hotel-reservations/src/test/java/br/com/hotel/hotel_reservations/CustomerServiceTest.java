@@ -1,6 +1,5 @@
 package br.com.hotel.hotel_reservations;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -140,6 +139,39 @@ public class CustomerServiceTest {
 
 	}
 	
+	@Test
+	@DisplayName("Tries to find customer by id and complte the task.")
+	public void findById_successfuly() {
+		Customer customer = new Customer();
+		customer.setName("Idris Elba");
+		customer.setEmail("idris@gmail.com");
+		customer.setPhone("21789653625");
+		customer.setAddress(null);
+		
+		when(repository.findById(1L)).thenReturn(Optional.of(customer));
+		
+		CustomerResponseDTO customerResponseDTO = new CustomerResponseDTO(1L, customer.getName(), 
+				customer.getEmail(), customer.getPhone(), customer.getCreatedAt(), null);
+		
+		when(mapper.toResponse(customer)).thenReturn(customerResponseDTO);
+		
+		CustomerResponseDTO result = service.findById(1L);
+		
+		assertNotNull(result);
+		assertEquals("Idris Elba", result.name());
+		assertEquals("idris@gmail.com", result.email());
+		assertEquals("21789653625", result.phone());
+		
+		verify(repository).findById(1L);
+		verify(mapper).toResponse(customer);
+		
+	}
+	
+	@Test
+	@DisplayName("Tries to found customer by id and customer not found.")
+	public void findById_NotFound() {
+		
+	}
 }
 
 
