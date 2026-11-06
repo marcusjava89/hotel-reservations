@@ -2,6 +2,7 @@ package br.com.hotel.hotel_reservations;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -23,6 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import br.com.hotel.hotel_reservations.dto.CustomerRequestDTO;
 import br.com.hotel.hotel_reservations.dto.CustomerResponseDTO;
 import br.com.hotel.hotel_reservations.exception.CustomerConflictException;
+import br.com.hotel.hotel_reservations.exception.CustomerNotFoundException;
 import br.com.hotel.hotel_reservations.exception.InvalidZipCodeException;
 import br.com.hotel.hotel_reservations.integration.viacep.ViaCepClient;
 import br.com.hotel.hotel_reservations.integration.viacep.ViaCepResponse;
@@ -136,7 +138,6 @@ public class CustomerServiceTest {
 		verify(repository).findByEmail(request.getEmail());
 		verify(viaCepClient).findByZipCode(request.getZipcode());
 		verify(repository, never()).save(any(Customer.class));
-
 	}
 	
 	@Test
@@ -158,20 +159,59 @@ public class CustomerServiceTest {
 		CustomerResponseDTO result = service.findById(1L);
 		
 		assertNotNull(result);
+		assertEquals(customerResponseDTO.id(), result.id());
 		assertEquals("Idris Elba", result.name());
 		assertEquals("idris@gmail.com", result.email());
 		assertEquals("21789653625", result.phone());
+		assertNull(result.address());
 		
 		verify(repository).findById(1L);
 		verify(mapper).toResponse(customer);
-		
 	}
 	
 	@Test
 	@DisplayName("Tries to found customer by id and customer not found.")
 	public void findById_NotFound() {
+		when(repository.findById(1L)).thenReturn(Optional.empty());
 		
+		CustomerNotFoundException ex = assertThrows( CustomerNotFoundException.class, () -> service.findById(1L));
+		
+		assertEquals("Customer with id = 1 was not found.", ex.getMessage());
+		
+		verify(repository).findById(1L);
+		verify(mapper, never()).toResponse(any(Customer.class));
+
 	}
+	
+	@Test
+	@DisplayName("Tries to found customer by email and succeed.")
+	public void findByEmail_Success() {
+		Customer customer = new Customer();
+		customer.setName("Idris Elba");
+		customer.setEmail("idris@gmail.com");
+		customer.setPhone("21789653625");
+		customer.setAddress(null);
+		
+		when(repository.findByEmail("idris@gmail.com")).thenReturn(Optional.of(customer));
+		
+		CustomerResponseDTO customerResponseDTO = new CustomerResponseDTO(1L, customer.getName(), 
+				customer.getEmail(), customer.getPhone(), customer.getCreatedAt(), null);
+		
+		when(mapper.toResponse(customer)).thenReturn(customerResponseDTO);
+		
+		CustomerResponseDTO result = service.findByEmail("idris@gmail.com");
+		
+		assertNotNull(result);
+		assertEquals(customerResponseDTO.id(), result.id());
+		assertEquals("Idris Elba", result.name());
+		assertEquals("idris@gmail.com", result.email());
+		assertEquals("21789653625", result.phone());
+		assertNull(result.address());
+		
+		verify(repository).findByEmail("idris@gmail.com");
+		verify(mapper).toResponse(customer);
+	}
+	
 }
 
 
