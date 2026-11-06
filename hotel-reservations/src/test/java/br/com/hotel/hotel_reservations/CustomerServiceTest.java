@@ -85,9 +85,11 @@ public class CustomerServiceTest {
 		CustomerResponseDTO result = service.save(request);
 		
 		assertNotNull(result);
-		assertEquals(request.getName(), result.name());
-		assertEquals(request.getEmail(), result.email());
-		assertEquals(request.getPhone(), result.phone());
+		assertEquals(customerResponseDTO.id(), result.id());
+		assertEquals(customerResponseDTO.name(), result.name());
+		assertEquals(customerResponseDTO.email(), result.email());
+		assertEquals(customerResponseDTO.phone(), result.phone());
+		assertNull(result.address());
 		
 		verify(mapper).toEntity(request);
 		verify(mapper).toResponse(customer);
@@ -212,6 +214,19 @@ public class CustomerServiceTest {
 		verify(mapper).toResponse(customer);
 	}
 	
+	@Test
+	@DisplayName("Tries to found customer by email and succeed.")
+	public void findByEmail_NotFound() {
+		when(repository.findByEmail("idris@gmail.com")).thenReturn(Optional.empty());
+		
+		CustomerNotFoundException ex = assertThrows(CustomerNotFoundException.class, 
+				() -> service.findByEmail("idris@gmail.com"));
+		
+		assertEquals("Customer with email = idris@gmail.com was not found.", ex.getMessage());
+		
+		verify(repository).findByEmail("idris@gmail.com");
+		verify(mapper, never()).toResponse(any(Customer.class));
+	}
 }
 
 
