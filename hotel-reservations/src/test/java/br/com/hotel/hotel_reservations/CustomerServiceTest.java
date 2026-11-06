@@ -215,7 +215,7 @@ public class CustomerServiceTest {
 	}
 	
 	@Test
-	@DisplayName("Tries to found customer by email and succeed.")
+	@DisplayName("Tries to found customer by email and fails.")
 	public void findByEmail_NotFound() {
 		when(repository.findByEmail("idris@gmail.com")).thenReturn(Optional.empty());
 		
@@ -226,6 +226,35 @@ public class CustomerServiceTest {
 		
 		verify(repository).findByEmail("idris@gmail.com");
 		verify(mapper, never()).toResponse(any(Customer.class));
+	}
+	
+	@Test
+	@DisplayName("Deletes customer by id successfully.")
+	public void delete_Successfuly() {
+		Customer customer = new Customer();
+		customer.setName("Idris Elba");
+		customer.setEmail("idris@gmail.com");
+		customer.setPhone("21789653625");
+		customer.setAddress(null);
+		
+		when(repository.findById(1L)).thenReturn(Optional.of(customer));
+		
+		service.delete(1L);
+		verify(repository).findById(1L);
+		verify(repository).delete(customer);
+	}
+	
+	@Test
+	@DisplayName("Customer not found by id.")
+	public void delete_NotFoundCustomer() {
+		when(repository.findById(1L)).thenReturn(Optional.empty());
+		
+		CustomerNotFoundException ex = assertThrows(CustomerNotFoundException.class, () -> service.delete(1L));
+		
+		assertEquals("Customer with id = 1 was not found.", ex.getMessage());
+		verify(repository).findById(1L);
+		verify(repository, never()).delete(any(Customer.class));
+		
 	}
 }
 
