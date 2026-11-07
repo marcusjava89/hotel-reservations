@@ -10,9 +10,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -50,8 +50,17 @@ public class CustomerServiceTest {
 	
 	private CustomerRequestDTO request;
 	
-	@BeforeEach
-	public void setup() {
+	private Customer customer1;
+	
+	public void setupCustomer() {
+	customer1 = new Customer();
+	customer1.setName("Idris Elba");
+	customer1.setEmail("idris@gmail.com");
+	customer1.setPhone("21789653625");
+	customer1.setAddress(null);
+	}
+	
+	public void setupRequest() {
 		request = new CustomerRequestDTO();
 		request.setName("Marcus Martins");
 		request.setEmail("marcus@gmail.com");
@@ -61,8 +70,8 @@ public class CustomerServiceTest {
 	
 	@Test
 	@DisplayName("Method save customer successfully.")
-	public void saveCustomer_Successfully() {
-		
+	public void saveCustomerSuccessfully() {
+		setupRequest();
 		when(repository.findByEmail(request.getEmail())).thenReturn(Optional.empty());
 		
 		ViaCepResponse viaCepResponse = new ViaCepResponse("20040-020","Rua Primeiro de Março","","Centro","RJ",
@@ -108,11 +117,12 @@ public class CustomerServiceTest {
 	@Test
 	@DisplayName("We try to save customer and the email alredy exists.")
 	public void saveEmailAlredyExists() {
-		Customer customer = new Customer();
-		customer.setName("Idris Elba");
-		customer.setEmail("marcus@gmail.com");
+		setupCustomer();
+		setupRequest();
 		
-		when(repository.findByEmail(request.getEmail())).thenReturn(Optional.of(customer));
+		customer1.setEmail("marcus@gmail.com");
+		
+		when(repository.findByEmail(request.getEmail())).thenReturn(Optional.of(customer1));
 		
 		CustomerConflictException ex = assertThrows(CustomerConflictException.class, () -> service.save(request));
 		
@@ -124,7 +134,8 @@ public class CustomerServiceTest {
 	
 	@Test
 	@DisplayName("We try to save a customer and the zipcode is invalid.")
-	public void SaveInvalidZipcode() {
+	public void saveInvalidZipcode() {
+		setupRequest();
 		request.setZipcode("2345");
 		
 		ViaCepResponse viaCepResponse = new ViaCepResponse(null, null, null, null, null, true);
@@ -144,19 +155,15 @@ public class CustomerServiceTest {
 	
 	@Test
 	@DisplayName("Tries to find customer by id and complte the task.")
-	public void findById_successfuly() {
-		Customer customer = new Customer();
-		customer.setName("Idris Elba");
-		customer.setEmail("idris@gmail.com");
-		customer.setPhone("21789653625");
-		customer.setAddress(null);
+	public void findByIdSuccessfully() {
+		setupCustomer();
 		
-		when(repository.findById(1L)).thenReturn(Optional.of(customer));
+		when(repository.findById(1L)).thenReturn(Optional.of(customer1));
 		
-		CustomerResponseDTO customerResponseDTO = new CustomerResponseDTO(1L, customer.getName(), 
-				customer.getEmail(), customer.getPhone(), customer.getCreatedAt(), null);
+		CustomerResponseDTO customerResponseDTO = new CustomerResponseDTO(1L, customer1.getName(), 
+				customer1.getEmail(), customer1.getPhone(), customer1.getCreatedAt(), null);
 		
-		when(mapper.toResponse(customer)).thenReturn(customerResponseDTO);
+		when(mapper.toResponse(customer1)).thenReturn(customerResponseDTO);
 		
 		CustomerResponseDTO result = service.findById(1L);
 		
@@ -168,12 +175,12 @@ public class CustomerServiceTest {
 		assertNull(result.address());
 		
 		verify(repository).findById(1L);
-		verify(mapper).toResponse(customer);
+		verify(mapper).toResponse(customer1);
 	}
 	
 	@Test
 	@DisplayName("Tries to found customer by id and customer not found.")
-	public void findById_NotFound() {
+	public void findByIdCustomerNotFound() {
 		when(repository.findById(1L)).thenReturn(Optional.empty());
 		
 		CustomerNotFoundException ex = assertThrows( CustomerNotFoundException.class, () -> service.findById(1L));
@@ -187,19 +194,15 @@ public class CustomerServiceTest {
 	
 	@Test
 	@DisplayName("Tries to found customer by email and succeed.")
-	public void findByEmail_Success() {
-		Customer customer = new Customer();
-		customer.setName("Idris Elba");
-		customer.setEmail("idris@gmail.com");
-		customer.setPhone("21789653625");
-		customer.setAddress(null);
+	public void findByEmailSuccessfully() {
+		setupCustomer();
 		
-		when(repository.findByEmail("idris@gmail.com")).thenReturn(Optional.of(customer));
+		when(repository.findByEmail("idris@gmail.com")).thenReturn(Optional.of(customer1));
 		
-		CustomerResponseDTO customerResponseDTO = new CustomerResponseDTO(1L, customer.getName(), 
-				customer.getEmail(), customer.getPhone(), customer.getCreatedAt(), null);
+		CustomerResponseDTO customerResponseDTO = new CustomerResponseDTO(1L, customer1.getName(), 
+				customer1.getEmail(), customer1.getPhone(), customer1.getCreatedAt(), null);
 		
-		when(mapper.toResponse(customer)).thenReturn(customerResponseDTO);
+		when(mapper.toResponse(customer1)).thenReturn(customerResponseDTO);
 		
 		CustomerResponseDTO result = service.findByEmail("idris@gmail.com");
 		
@@ -211,12 +214,12 @@ public class CustomerServiceTest {
 		assertNull(result.address());
 		
 		verify(repository).findByEmail("idris@gmail.com");
-		verify(mapper).toResponse(customer);
+		verify(mapper).toResponse(customer1);
 	}
 	
 	@Test
 	@DisplayName("Tries to found customer by email and fails.")
-	public void findByEmail_NotFound() {
+	public void findByEmailCustomerNotFound() {
 		when(repository.findByEmail("idris@gmail.com")).thenReturn(Optional.empty());
 		
 		CustomerNotFoundException ex = assertThrows(CustomerNotFoundException.class, 
@@ -230,23 +233,19 @@ public class CustomerServiceTest {
 	
 	@Test
 	@DisplayName("Deletes customer by id successfully.")
-	public void delete_Successfuly() {
-		Customer customer = new Customer();
-		customer.setName("Idris Elba");
-		customer.setEmail("idris@gmail.com");
-		customer.setPhone("21789653625");
-		customer.setAddress(null);
+	public void deleteSuccessfully() {
+		setupCustomer();
 		
-		when(repository.findById(1L)).thenReturn(Optional.of(customer));
+		when(repository.findById(1L)).thenReturn(Optional.of(customer1));
 		
 		service.delete(1L);
 		verify(repository).findById(1L);
-		verify(repository).delete(customer);
+		verify(repository).delete(customer1);
 	}
 	
 	@Test
 	@DisplayName("Customer not found by id.")
-	public void delete_NotFoundCustomer() {
+	public void deleteCustomerNotFoundCustomer() {
 		when(repository.findById(1L)).thenReturn(Optional.empty());
 		
 		CustomerNotFoundException ex = assertThrows(CustomerNotFoundException.class, () -> service.delete(1L));
@@ -256,6 +255,76 @@ public class CustomerServiceTest {
 		verify(repository, never()).delete(any(Customer.class));
 		
 	}
+	
+	@Test
+	@DisplayName("List all customers")
+	public void listAllCustomerList() {
+		setupCustomer();
+		
+		Customer customer2 = new Customer();
+		customer2.setName("Megan Good");
+		customer2.setEmail("megan@gmail.com");
+		customer2.setPhone("21456987123");
+		customer2.setAddress(null);
+		
+		List<Customer> list = List.of(customer1, customer2);
+		
+		when(repository.findAll()).thenReturn(list);
+		
+		CustomerResponseDTO customerResponseDTO1 = new CustomerResponseDTO(1L, customer1.getName(), 
+				customer1.getEmail(), customer1.getPhone(), customer1.getCreatedAt(), null);
+		
+		CustomerResponseDTO customerResponseDTO2 = new CustomerResponseDTO(2L, customer2.getName(), 
+				customer2.getEmail(), customer2.getPhone(), customer2.getCreatedAt(), null);
+		
+		List<CustomerResponseDTO> listResponse = List.of(customerResponseDTO1, customerResponseDTO2);
+		
+		when(mapper.toResponseList(list)).thenReturn(listResponse);
+		
+		List<CustomerResponseDTO> listResult = service.listAll();
+		
+		assertNotNull(listResult);
+		assertNull(listResult.get(0).address());
+		assertEquals(listResponse.get(0).id(), listResult.get(0).id());
+		assertEquals(listResponse.get(0).name(), listResult.get(0).name());
+		assertEquals(listResponse.get(0).email(), listResult.get(0).email());
+		assertEquals(listResponse.get(0).phone(), listResult.get(0).phone());
+		assertEquals(listResponse.get(0).createdAt(), listResult.get(0).createdAt());
+		
+		assertNull(listResult.get(1).address());
+		assertEquals(listResponse.get(1).id(), listResult.get(1).id());
+		assertEquals(listResponse.get(1).name(), listResult.get(1).name());
+		assertEquals(listResponse.get(1).email(), listResult.get(1).email());
+		assertEquals(listResponse.get(1).phone(), listResult.get(1).phone());
+		assertEquals(listResponse.get(1).createdAt(), listResult.get(1).createdAt());
+		
+		assertEquals(2, listResult.size());
+		
+		verify(repository).findAll();
+		verify(mapper).toResponseList(list);
+	}
+	
+	@Test
+	@DisplayName("List all customers")
+	public void listAllEmptyList() {
+		List<Customer> list = List.of();
+		
+		when(repository.findAll()).thenReturn(list);
+		
+		List<CustomerResponseDTO> listResponse = List.of();
+		
+		when(mapper.toResponseList(list)).thenReturn(listResponse);
+		List<CustomerResponseDTO> listResult = service.listAll();
+		
+		assertNotNull(listResult);
+		
+		assertEquals(0, listResult.size());
+		
+		verify(repository).findAll();
+		verify(mapper).toResponseList(list);
+
+	}
+	
 }
 
 
